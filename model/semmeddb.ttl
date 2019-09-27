@@ -1,0 +1,78 @@
+@prefix sdb : <https://skr3.nlm.nih.gov/SemMedDB/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vann : <http://purl.org/vocab/vann/> .
+@prefix skos : <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct : <http://purl.org/dc/terms/> .
+
+
+# Ontology
+
+<urn:stardog:demo:semmeddb> 
+	rdf:type owl:Ontology ;
+	owl:versionInfo "0.0.1" ;
+	rdfs:comment "(Partial) model of SemMedDB concepts for demo purposes"@en ;
+	.
+	
+# Classes
+
+sdb:Entity 
+	rdf:type owl:Class ;
+	rdfs:label "Entity"@en ;
+	rdfs:comment "Biomedical entity being described by SemMedDB predications"@en ;
+	.
+	
+sdb:SemanticType 
+	# rdfs:subClassOf skos:Concept ;
+	rdf:type owl:Class ;
+	rdfs:subClassOf sdb:Entity ; 
+	rdfs:label "Semantic type"@en ;
+	rdfs:comment "UMLS Semantic type (SKOS concept) used to categorize an entity"@en ;
+	rdfs:seeAlso <https://metamap.nlm.nih.gov/Docs/SemanticTypes_2018AB.txt> ;
+	.	
+	
+# Predicates 
+
+sdb:predicate
+	rdf:type owl:ObjectProperty ;
+	rdfs:label "predicate"@en ;
+	rdfs:comment "Relation expressing a SemMedDB predication, subproperties are extracted from the SemMedDB PREDICATION table"@en ;
+	rdfs:domain sdb:Entity ;
+	rdfs:range sdb:Entity ;
+	rdfs:seeAlso <https://www.researchgate.net/publication/51903378_Constructing_a_semantic_predication_gold_standard_from_the_biomedical_literature> ;
+	vann:example sdb:associated_with ;
+	.
+	
+sdb:cui
+	rdf:type owl:DataProperty ;
+	rdfs:label "concept unique identifier (CUI)"@en ;
+	rdfs:comment "Unique identifier of a (entity) concept"@en ;
+	rdfs:domain sdb:Entity ;
+	rdfs:range xsd:string ;
+	rdfs:seeAlso <https://www.nlm.nih.gov/research/umls/new_users/online_learning/Meta_005.html> ;
+	vann:example "C0004096"; # Asthma, letter "C" followed by seven numbers
+	.
+	
+sdb:tui
+	rdf:type owl:DataProperty ;
+	rdfs:label "semantic type unique identifier (TUI)"@en ;
+	rdfs:comment "Unique identifier of a semantic type"@en ;
+	rdfs:domain sdb:SemanticType ;
+	rdfs:range xsd:string ;
+	vann:example "T028"; # Gene or Genome
+	.
+
+# not used in favor owl classification (and indexing)
+sdb:semantic_type
+	rdf:type owl:ObjectProperty ;
+	rdfs:subPropertyOf dct:subject ;
+	rdfs:label "category" ;
+	rdfs:comment "Semantic type (SKOS concept) associated with an entity"@en ;
+	rdfs:domain sdb:Entity ;
+	rdfs:range sdb:SemanticType ;
+	.
+	
+

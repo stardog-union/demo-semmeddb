@@ -1,0 +1,20 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# stardog-admin virtual add --database semmeddb --format SMS2 --overwrite predicates.properties predicates.sms
+# select (count(?p) as ?all) (count(distinct ?p) as ?ditinct )where { graph <virtual://predicates>{ ?p a :Predicate . } }
+# 1000 (sic!), 38
+# stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb --format SMS2 predicates.properties predicates.sms 
+# 38, 38: select (count(?p) as ?all) (count(distinct ?p) as ?ditinct)where { ?p a :Predicate. }
+
+MAPPING :SemmedDB_Predicates
+FROM SQL {
+  	SELECT DISTINCT LOWER(predicate) as lc_predicate FROM predication
+}
+TO {
+	?p 	rdfs:subPropertyOf sdb:predicate ; rdfs:label "?lc_predicate"@en .
+} 
+WHERE {
+	  BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{lc_predicate}") AS ?p)
+}

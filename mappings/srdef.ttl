@@ -1,0 +1,14 @@
+PREFIX sdb : <https://skr3.nlm.nih.gov/SemMedDB/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Generate UMLS Semantic types from a delimited source (SemanticTypes_2018AB.txt)
+# see: https://metamap.nlm.nih.gov/SemanticTypesAndGroups.shtml
+# stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb mappings/srdef.properties mappings/srdef.ttl data/SemanticTypes_2018AB.txt
+
+sdb:{0} 
+	# rdf:type sdb:SemanticType ; # @SKOS Concept
+	rdfs:subClassOf sdb:SemanticType ; 
+	rdfs:label "{2}"@en ;
+	# skos:prefLabel "{2}"@en ;
+	sdb:tui "{1}"^^xsd:string .
