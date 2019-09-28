@@ -1,0 +1,45 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# stardog-admin virtual add --database semmeddb --format SMS2 --overwrite mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
+# stardog-admin virtual import  semmeddb --format SMS2  mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
+
+# Tailored mapping to incrementaly load only the data relevant for the reference questions.
+# There is only one "gene" "associated with" "COPD exacerbation", so not restricting the predicate
+# to showcase futher relations and subjects.
+
+MAPPING :SemmedDB_Predications
+FROM SQL {
+  	SELECT
+		subject_cui, 
+		subject_name, 
+		subject_semtype,
+		LOWER(predicate) as lc_predicate, 
+		object_cui, 
+		object_name, 
+		object_semtype
+	FROM predication 
+	WHERE subject_semtype = 'gngm'  AND ( object_name LIKE 'COPD%' OR object_name = 'Asthma' )
+}
+TO {
+
+	?s 	rdf:type ?st ;
+		# sdb:semantic_type ?st ;
+		rdfs:label ?subject_name ; # multilingual (English, Latin)
+		sdb:cui ?subject_cui ;
+		?p ?o .
+		
+	?o	rdf:type ?ot ;
+		# sdb:semantic_type ?ot ;
+		rdfs:label ?object_name; 
+		sdb:cui ?object_cui .
+
+} 
+WHERE {
+	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{subject_cui}") AS ?s)
+	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{subject_semtype}") AS ?st)
+	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{lc_predicate}") AS ?p)
+	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{object_cui}") AS ?o)
+	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{object_semtype}") AS ?ot)
+}
