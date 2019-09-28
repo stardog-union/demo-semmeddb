@@ -107,7 +107,7 @@ bash>
 - Identify genes associated with Asthma, but not COPD
 	- Chronic obstructive pulmonary disease (COPD)
 	- Asthma-COPD overlap syndrome (ACOS)?
-
+ 
 ```
 select distinct ?gene_label where {
 
