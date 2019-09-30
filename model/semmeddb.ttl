@@ -28,9 +28,8 @@ sdb:Entity
 sdb:SemanticType 
 	# rdfs:subClassOf skos:Concept ;
 	rdf:type owl:Class ;
-	rdfs:subClassOf sdb:Entity ; 
 	rdfs:label "Semantic type"@en ;
-	rdfs:comment "UMLS Semantic type (SKOS concept) used to categorize an entity"@en ;
+	rdfs:comment "UMLS Semantic type used to categorize an entity"@en ;
 	rdfs:seeAlso <https://metamap.nlm.nih.gov/Docs/SemanticTypes_2018AB.txt> ;
 	.	
 	
@@ -65,12 +64,12 @@ sdb:tui
 	vann:example "T028"; # Gene or Genome
 	.
 
-# not used in favor owl classification (and indexing)
+# not used/replaced by rdf:type in favor owl classification (and indexing)
 sdb:semantic_type
 	rdf:type owl:ObjectProperty ;
 	rdfs:subPropertyOf dct:subject ;
 	rdfs:label "category" ;
-	rdfs:comment "Semantic type (SKOS concept) associated with an entity"@en ;
+	rdfs:comment "Semantic type associated with an entity"@en ;
 	rdfs:domain sdb:Entity ;
 	rdfs:range sdb:SemanticType ;
 	.
