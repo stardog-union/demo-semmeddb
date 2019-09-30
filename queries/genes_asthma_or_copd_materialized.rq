@@ -1,0 +1,27 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?gene_label ?gene WHERE {
+        VALUES ?disease { 
+            # all entities below are of type sdb:dsyn, i.e. "Disease"
+            # Asthma variants known to PREDICATIONS
+            sdb:C0004096 # 'Asthma'
+            sdb:C0004099 # 'Asthma, Exercise-Induced'
+            sdb:C0259808 # 'Asthma, endogenous'
+            sdb:C0347950 # 'Asthma attack NOS'
+            sdb:C0856716 # 'Asthma aspirin-sensitive'
+            sdb:C0340076 # 'Asthmatic pulmonary eosinophilia'
+            sdb:C1319018 # 'Asthmatic bronchitis'
+            sdb:C0259745 # 'Asthma, infective'
+            sdb:C0859987 # 'Asthmatoid bronchitis'
+            sdb:C0877430 # 'Asthma chronic'
+            # COPD mentiones
+            sdb:C0742809 # 'COPD BRONCHITIS'
+            sdb:C0740304 # 'COPD exacerbation'   
+        }            
+        ?gene 
+            sdb:associated_with ?disease ;
+            rdf:type sdb:gngm ;# Gene
+            rdfs:label ?gene_label .
+} ORDER BY ?gene_label

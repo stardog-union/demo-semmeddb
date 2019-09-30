@@ -17,7 +17,7 @@ Table | File size | Rows
 PREDICATION | 13Gb | 97.972.561
 ENTITY | 123Gb | 1.369.837.426
 
-The target graph model [semmeddb.ttl](model/semmeddb.ttl) trivially lifts the SemMedDB predications to RDF. Instances of the `sdb:Entity` class are related by the `sdb:predicate` relationship (derived from `owl:ObjectProperty`). The `sdb:SemanticType` class represents a concept an entity represents:
+The target graph model [semmeddb.ttl](model/semmeddb.ttl) trivially lifts the SemMedDB predications to RDF. Instances of the `sdb:Entity` class are related by the `sdb:predicate` relationship (derived from `owl:ObjectProperty`). The `sdb:SemanticType` class represents the concept behind an entity:
 
 ![SemMedDB Graph Model](figures/SemMedDB.png "SemMedDB POC Graph Model")
 
@@ -49,6 +49,15 @@ Depending on the interpretation of these composite identifiers alterantive mappi
 1. The CUI is considered an *opaque* identifier, no particular handling appllies 
 2. The parts correspond to *aliases* of given (first) entity and should be linked to it, the 
 3. The parts correspond to *independent entities*, a new entity resource should be created for each. This approach may require a multi-pass integration
+
+Similar ambiguity pertains to the `ENTITY` table. Some (TBD: ratio) of the entities indicate a list of comma-separated Entrez Gene IDs, maintained by the National Center for Biotechnology Information (NCBI), such as [PIF1 (80119)](https://www.ncbi.nlm.nih.gov/gene/?term=80119) and [DCD (117159)](https://www.ncbi.nlm.nih.gov/gene/?term=117159):
+
+```
+CUI       | GENE_ID
+'C0016904','80119,117159'
+'C0085828','2353,2354,3725,3726,3727'
+'C0085828','2149,7012,7037,7296,10587,23671'
+```
 
 ## Classes (Semantic Types)
 
@@ -83,7 +92,7 @@ sdb:associated_with rdfs:label "associated_with" .
 
 # Demo Environment
 
-An active MySQL instance (8.0.17) and Stardog (7.0.2) with a [MySQL JDBC-driver](https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.17.zip) installed in `$STARDOG_HOME/server/dbms/` or at `$STARDOG_EXT` are assumed.
+An active MySQL instance (8.0.17) and Stardog (7.0.2) with a [MySQL JDBC-driver](https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.17.zip) installed in `$STARDOG_HOME/server/dbms/` or at `$STARDOG_EXT` are assumed. Any path expressions (files) below are relative to this project's home  directory (`demo-semmeddb`).
 
 ## Database
 
@@ -102,7 +111,7 @@ mysql>
 
 (a) via a background process on command line (recommended):
 
-```bash
+```console
 bash>
  	nohup mysql -u tester --password=stardog semmeddb < semmedVER40_R_PREDICATION.sql &
 	# Applies only when ENTITY table is used:
@@ -117,7 +126,7 @@ mysql>
 	SOURCE semmedVER40_R_ENTITY.sql;
 ```
 
-Clean up an obviuos error, numeric predicates are inalid (3 rows affected):
+Clean up an obviuos error, numeric predicates are invalid (3 rows affected):
 
 ```sql
 mysql> 
@@ -143,51 +152,48 @@ mysql>
 
 ## Stardog server
 
-```
-bash>
-	# Create database
-	stardog-admin db create --name semmeddb --options reasoning.schema.graphs=urn:stardog:demo:semmeddb:model --
-	
-	# Load ontology file
-	stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb model/semmeddb.ttl
-	
-	# Import extracted type definitions
-	stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb mappings/srdef.properties mappings/srdef.ttl data/SemanticTypes_2018AB.txt
-	
-	# Import data
-	stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/semmeddb.sms
+The following step to prepare the integration of the SemMedDB data in Stardog: 
 
+Create the database `semmeddb` dedicating the named graph `urn:stardog:demo:semmeddb:model` for model maintenance:
+
+```console
+stardog-admin db create --name  --options reasoning.schema.graphs=urn:stardog:demo:semmeddb:model --
 ```
 
-# Queries
-- Identify genes associated with Asthma or COPD
-- Identify genes associated with Asthma, but not COPD
-	- Chronic obstructive pulmonary disease (COPD)
-	- Asthma-COPD overlap syndrome (ACOS)?
- 
-```
-PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+Load the ontology file and dynamic, data-generated parts of the model into the graph `urn:stardog:demo:semmeddb:model`:
 
-select distinct ?gene_label where {
-    #graph <virtual://semmeddb>{
-        ?disease 
-            rdf:type sdb:dsyn ; # Disease
-            rdfs:label ?d_label 
-            filter (matches(?d_label, "COPD") || ?d_label = "Asthma")
-        ?gene 
-            rdf:type sdb:gngm ;# Gene
-            sdb:associated_with ?disease ;
-            rdfs:label ?gene_label .
-  #}
-}
+```console
+stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb model/semmeddb.ttl
+	
+# Import generated type definitions
+stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb mappings/srdef.properties mappings/srdef.ttl data/SemanticTypes_2018AB.txt
+
+# Import generated predicate definitions
+stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb --format SMS2 mappings/predicates.properties mappings/predicates.sms  
 ```
-TBD..
+Stardog supports either a deferred (virtual) or an eager (materialized) integration of data into the uniform knowledge graph model. The former is particularly suitable for live, transient data. Its integration and evaluation is performed on the fly. An corresponding *virtual graph* (VG) acts as an adapter to the original data source and is created by the `stardog-admin virtual add` command. VG queries are subject to performance limitations of the underlying data source. The following example operates therefore on a subset of the `PREDICATION` data, allowing to asses an association between genes and the diseases "Asthma" or "Chronic obstructive pulmonary disease" (COPD):
+
+```console
+stardog-admin virtual add --database semmeddb --format SMS2 --overwrite mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
+```
+The virtualized `PREDICATION` data set is exposed via the VG `<virtual://semmeddb>` for queries such as "which genes are associated with Asthma *or* COPD?" ([`genes_asthma_or_copd_virtual.rq`](queries/genes_asthma_or_copd_virtual.rq)). 
+
+The `stardog-admin virtual import` command is preferred to load mostly static, extensive data sources according to provided mapping: 
+
+```console
+stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
+```
+Sample queries show selecting genes that:
+
+- are associated with Asthma *or* COPD: ([`genes_asthma_or_copd_materialized.rq`](queries/genes_asthma_or_copd_materialized.rq))
+- are associated with Asthma, *not* COPD: ([`genes_asthma_not_copd_materialized.rq`](queries/genes_asthma_not_copd_materialized.rq))
+- are associated with Asthma *and* COPD: ([`genes_asthma_and_copd_materialized.rq`](queries/genes_asthma_and_copd_materialized.rq))
 
 
 ## Summary of data issues
-
+- Identification / selection of Asthma* or COPD* terms
+	- Chronic obstructive pulmonary disease (COPD)
+	- Asthma-COPD overlap syndrome (ACOS)?
 - invalid identifiers (s. predicates)
 - multi-valued IDs, should we slplit/unnest them creating new resources?
 	- on any position, sbject, object and entity
