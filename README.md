@@ -17,7 +17,7 @@ Table | File size | Rows
 PREDICATION | 13Gb | 97.972.561
 ENTITY | 123Gb | 1.369.837.426
 
-The target graph model [semmeddb.ttl](model/semmeddb.ttl) trivially lifts the SemMedDB predications to RDF. Instances of the `sdb:Entity` class are related by the `sdb:predicate` relationship (derived from `owl:ObjectProperty`). The `sdb:SemanticType` class represents the concept behind an entity:
+The target graph model [semmeddb.ttl](model/semmeddb.ttl) trivially lifts the SemMedDB predications to RDF. Instances of the `sdb:Entity` class are related by the `sdb:predicate` relationship (derived from `owl:ObjectProperty`). The `sdb:SemanticType` class represents the concept behind an entity. The `sdb:Predication` class maintains references to elements of an individual predication, e.g. in order to evaluate and trace its validity. 
 
 ![SemMedDB Graph Model](figures/SemMedDB.png "SemMedDB POC Graph Model")
 
@@ -113,14 +113,15 @@ mysql>
 
 ```console
 bash>
- 	nohup mysql -u tester --password=stardog semmeddb < semmedVER40_R_PREDICATION.sql &
+ 	nohup mysql -u tester --password=stardog semmeddb4 < semmedVER40_R_PREDICATION.sql &
 	# Applies only when ENTITY table is used:
-	nohup mysql -u tester --password=stardog semmeddb < semmedVER40_R_ENTITY.sql &
+	nohup mysql -u tester --password=stardog semmeddb4 < semmedVER40_R_ENTITY.sql &
 ```
  or (b) via the mysql console: 
  
 ```sql	
 mysql>
+	USE semmeddb4 ;
 	SOURCE semmedVER40_R_PREDICATION.sql;
 	# Applies only when ENTITY table is used:
 	SOURCE semmedVER40_R_ENTITY.sql;
@@ -130,6 +131,7 @@ Clean up an obviuos error, numeric predicates are invalid (3 rows affected):
 
 ```sql
 mysql> 
+	USE semmeddb4 ;
 	DELETE FROM predication WHERE predicate IN ("127", "1532", "241") ;
 ```
  
@@ -176,18 +178,38 @@ Stardog supports either a deferred (virtual) or an eager (materialized) integrat
 ```console
 stardog-admin virtual add --database semmeddb --format SMS2 --overwrite mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
 ```
-The virtualized `PREDICATION` data set is exposed via the VG `<virtual://semmeddb>` for queries such as "which genes are associated with Asthma *or* COPD?" ([`genes_asthma_or_copd_virtual.rq`](queries/genes_asthma_or_copd_virtual.rq)). 
+The virtualized `PREDICATION` data set is exposed for querying via the VG `<virtual://semmeddb>` (not used in this demo). 
 
 The `stardog-admin virtual import` command is preferred to load mostly static, extensive data sources according to provided mapping: 
 
 ```console
 stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
 ```
-Sample queries show selecting genes that:
+
+## Queries
+
+Sample queries selecting genes that:
 
 - are associated with Asthma *or* COPD: ([`genes_asthma_or_copd_materialized.rq`](queries/genes_asthma_or_copd_materialized.rq))
-- are associated with Asthma, *not* COPD: ([`genes_asthma_not_copd_materialized.rq`](queries/genes_asthma_not_copd_materialized.rq))
+- are associated with Asthma but *not* COPD: ([`genes_asthma_not_copd_materialized.rq`](queries/genes_asthma_not_copd_materialized.rq))
 - are associated with Asthma *and* COPD: ([`genes_asthma_and_copd_materialized.rq`](queries/genes_asthma_and_copd_materialized.rq))
+
+## Constraints 
+
+The Integrity Constraint Validation (ICV) subsystem allows to validate graph data entering and being stored in a Stardog database according to user defined rules expressed in a variety of formats (e.g. SHACL, OWL, SPARQL). The queries above intentionally rely on the "positive" version of SemMedDb predicates (`associated_with`) because a number of predications was found to contradict by using the negated version of same predicates (`neg_associated_with`). The ICV 
+rule [`contradicting_predications_count.ttl`](rules/contradicting_predications_count.ttl) applied to the `semmeddb`database revealed 112 negating predications to conflict:
+
+```console
+bash>
+	stardog icv explain semmeddb constraints/contradicting_predications.ttl
+	+-----------+
+	| neg_count |
+	+-----------+
+	| 112       |
+	+-----------+
+```
+
+The rule [`contradicting_predications.ttl`](rules/contradicting_predications.ttl) provides a listing of the conflicting predication pairs. 
 
 
 ## Summary of data issues

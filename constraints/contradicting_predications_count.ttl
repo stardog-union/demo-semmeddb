@@ -1,0 +1,24 @@
+@prefix sdb: <https://skr3.nlm.nih.gov/SemMedDB/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix icv: <tag:stardog:api:icv:> .
+
+sdb:ContradictingPredications
+	rdf:type icv:Constraint ;
+	rdfs:comment "Rule detecting predications that assert contradicting predicates on same subject and object"@en ;
+	icv:query """
+		PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+		SELECT (COUNT(DISTINCT ?pn2) as ?neg_count) WHERE {
+			?pn1 a sdb:Predication ;
+				rdf:subject ?s ;
+				rdf:predicate ?pe1 ;
+				rdf:object ?o .
+			?pn2 a sdb:Predication ;
+				rdf:subject ?s ;
+				rdf:predicate ?pe2 ;
+				rdf:object ?o ;
+			FILTER (?pn1 != ?pn2)
+			FILTER (localname(?pe1) = strafter(localname(?pe2),"neg_"))
+		}
+	"""
+	.

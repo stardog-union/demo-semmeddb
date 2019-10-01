@@ -1,24 +1,41 @@
-@prefix sdb : <https://skr3.nlm.nih.gov/SemMedDB/> .
+@prefix sdb: <https://skr3.nlm.nih.gov/SemMedDB/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix vann : <http://purl.org/vocab/vann/> .
-@prefix skos : <http://www.w3.org/2004/02/skos/core#> .
-@prefix dct : <http://purl.org/dc/terms/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
 
 
 # Ontology
 
 <urn:stardog:demo:semmeddb> 
 	rdf:type owl:Ontology ;
-	owl:versionInfo "0.0.1" ;
+	owl:versionInfo "0.0.2" ;
 	rdfs:comment "(Partial) model of SemMedDB concepts for demo purposes"@en ;
 	.
 	
 # Classes
 
+sdb:Predication
+	rdf:type owl:Class ;
+	rdfs:subClassOf rdf:Statement , 
+		[
+			rdf:type owl:Restriction ;
+			owl:onProperty rdf:subject ;
+			owl:allValuesFrom sdb:Entity 
+		] ,
+		[
+			rdf:type owl:Restriction ;
+			owl:onProperty rdf:object ;
+			owl:allValuesFrom sdb:Entity 
+		] ;
+	rdfs:label "Predication"@en ;
+	rdfs:comment "Predication linking to involved constituents (subject, predicate, object)"@en ;
+	.
+	
 sdb:Entity 
 	rdf:type owl:Class ;
 	rdfs:label "Entity"@en ;

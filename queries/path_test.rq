@@ -1,0 +1,11 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+PATHS 
+	START ?s = <https://skr3.nlm.nih.gov/SemMedDB/80332> 
+	END ?e = <https://skr3.nlm.nih.gov/SemMedDB/C0004096> 
+VIA ?p
+
+
+# 'C0021756', 'Interleukin-2', 'C0004096', 'Asthma'
