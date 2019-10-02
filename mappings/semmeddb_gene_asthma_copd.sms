@@ -9,7 +9,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 # There is only one "gene" "associated with" "COPD exacerbation", so not restricting the predicate
 # to showcase futher relations and subjects.
 
-MAPPING :SemmedDB_Predications
+MAPPING :SemmedDB_Predication
 FROM SQL {
   	SELECT
 		subject_cui, 
@@ -42,4 +42,21 @@ WHERE {
 	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{lc_predicate}") AS ?p)
 	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{object_cui}") AS ?o)
 	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{object_semtype}") AS ?ot)
+};
+
+MAPPING :SemmedDB_Entity
+FROM SQL {
+  	SELECT
+		cui, 
+		gene_id
+	FROM entity
+}
+TO {
+
+	?ent sdb:gene ?g .
+
+} 
+WHERE {
+	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{cui}") AS ?ent)
+	BIND(template("https://www.ncbi.nlm.nih.gov/gene/{gene_id}") AS ?g)
 }

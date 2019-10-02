@@ -72,6 +72,16 @@ sdb:cui
 	vann:example "C0004096"; # Asthma, letter "C" followed by seven numbers
 	.
 	
+sdb:gene
+	rdf:type owl:ObjectProperty ;
+	rdfs:label "EntrezGene resource"@en ;
+	rdfs:comment "Reference to related EntrezGene resource as maintained by NCBI"@en ;
+	rdfs:domain sdb:Entity ;
+	rdfs:range rdf:Resource ;
+	rdfs:seeAlso <https://www.ncbi.nlm.nih.gov/gene> ;
+	vann:example <https://www.ncbi.nlm.nih.gov/gene/117159>
+	.
+
 sdb:tui
 	rdf:type owl:DataProperty ;
 	rdfs:label "semantic type unique identifier (TUI)"@en ;

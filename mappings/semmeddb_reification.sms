@@ -2,7 +2,7 @@ PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-# stardog-admin virtual import semmeddb --format SMS2 mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd_reification.sms 
+# stardog-admin virtual import semmeddb --format SMS2 mappings/semmeddb.properties mappings/semmeddb_reification.sms 
 
 MAPPING :SemmedDB_Predication
 FROM SQL {
@@ -16,7 +16,6 @@ FROM SQL {
 		object_name, 
 		object_semtype
 	FROM predication 
-	WHERE subject_semtype = 'gngm'  AND ( object_name LIKE 'COPD%' OR object_name = 'Asthma' )
 }
 TO {
 

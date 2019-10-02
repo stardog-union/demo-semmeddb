@@ -50,7 +50,7 @@ Depending on the interpretation of these composite identifiers alterantive mappi
 2. The parts correspond to *aliases* of given (first) entity and should be linked to it, the 
 3. The parts correspond to *independent entities*, a new entity resource should be created for each. This approach may require a multi-pass integration
 
-Similar ambiguity pertains to the `ENTITY` table. Some (TBD: ratio) of the entities indicate a list of comma-separated Entrez Gene IDs, maintained by the National Center for Biotechnology Information (NCBI), such as [PIF1 (80119)](https://www.ncbi.nlm.nih.gov/gene/?term=80119) and [DCD (117159)](https://www.ncbi.nlm.nih.gov/gene/?term=117159):
+Similar ambiguity pertains to the `ENTITY` table. Some (TBD: ratio) of the entities indicate a list of comma-separated Entrez Gene IDs, maintained by the [National Center for Biotechnology Information](https://www.ncbi.nlm.nih.gov/gene) (NCBI), such as [PIF1 (80119)](https://www.ncbi.nlm.nih.gov/gene/?term=80119) and [DCD (117159)](https://www.ncbi.nlm.nih.gov/gene/?term=117159):
 
 ```
 CUI       | GENE_ID
@@ -197,29 +197,37 @@ Sample queries selecting genes that:
 ## Constraints 
 
 The Integrity Constraint Validation (ICV) subsystem allows to validate graph data entering and being stored in a Stardog database according to user defined rules expressed in a variety of formats (e.g. SHACL, OWL, SPARQL). The queries above intentionally rely on the "positive" version of SemMedDb predicates (`associated_with`) because a number of predications was found to contradict by using the negated version of same predicates (`neg_associated_with`). The ICV 
-rule [`contradicting_predications_count.ttl`](rules/contradicting_predications_count.ttl) applied to the `semmeddb`database revealed 112 negating predications to conflict:
+rule [`contradicting_predications_count.ttl`](constraints/contradicting_predications_count.ttl) applied to the `semmeddb`database revealed 112 negating predications to conflict:
 
 ```console
-bash>
-	stardog icv explain semmeddb constraints/contradicting_predications.ttl
-	+-----------+
-	| neg_count |
-	+-----------+
-	| 112       |
-	+-----------+
+stardog icv explain semmeddb constraints/contradicting_predications.ttl
++-----------+
+| neg_count |
++-----------+
+| 112       |
++-----------+
 ```
 
 The rule [`contradicting_predications.ttl`](rules/contradicting_predications.ttl) provides a listing of the conflicting predication pairs. 
 
+# Statistics
 
-## Summary of data issues
-- Identification / selection of Asthma* or COPD* terms
-	- Chronic obstructive pulmonary disease (COPD)
-	- Asthma-COPD overlap syndrome (ACOS)?
-- invalid identifiers (s. predicates)
-- multi-valued IDs, should we slplit/unnest them creating new resources?
+System | Source row count | Loaded triples | Effective triples | Import time 
+--- | --- | --- | --- | ---
+MacBook Pro, Intel Core i9, 2,3 GHz, 8 cores, 16 GB memory | PREDICATION: 97.972.558, ENTITY: 37.859.114 | 37.898.857 | 177.802 | 6m 11.872s
+
+# Issues / Questions / Ideas
+- Applicability of Stardog's ML models: spa:SimilarityModel / clustering
+	- what were the arguments and the predicted value?
+- Applicability of PATH queries
+	- what could be related?
+	- which predivcates were "transitive", "symmetric" etc.?
+- Identification / selection of Asthma* or COPD*
+	- there is a multiple related concepts on object position
+		- Chronic obstructive pulmonary disease (COPD)
+		- Asthma-COPD overlap syndrome (ACOS)?
+- Some identifiers are clearly invalid (s. predicates)
+- Multi-valued IDs, should we slplit/unnest them creating new resources?
 	- on any position, sbject, object and entity
 	- does the type (SUBJECT_SEMTYPE, e.g. Gene) still apply to any of these?
-- is resolution of "EntrezGene ID" required (needs to load and  join the Entity table)?
-	- values are sometimes missing
-
+- Resolution of "EntrezGene ID" mandatory (needs to load and  join the Entity table)?
