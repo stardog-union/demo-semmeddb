@@ -2,6 +2,7 @@ PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
+# stardog-admin virtual add --database semmeddb --format SMS2 --overwrite mappings/semmeddb.properties mappings/semmeddb_reification.sms
 # stardog-admin virtual import semmeddb --format SMS2 mappings/semmeddb.properties mappings/semmeddb_reification.sms 
 
 MAPPING :SemmedDB_Predication

@@ -98,18 +98,20 @@ An active MySQL instance (8.0.17) and Stardog (7.0.2) with a [MySQL JDBC-driver]
 
 The SemMedDB is distributed as individual [MySQL import files](https://skr3.nlm.nih.gov/SemMedDB/download/download.html).  Please download, unpack and import the SemMedDB [PREDICATION table (2.51Gb)](https://skr3.nlm.nih.gov/SemMedDB/download/semmedVER40_R_PREDICATION.sql.gz), plus (optionally) the [ENTITY table (38.2Gb)](https://skr3.nlm.nih.gov/SemMedDB/download/semmedVER40_R_ENTITY.sql.gz)
 
-1) Set-up the database `semmeddb4`:
+1) Set-up the database `semmeddb4`
 
 ```sql
 mysql>
 	CREATE DATABASE semmeddb4 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-	CREATE USER 'tester'@'localhost' IDENTIFIED BY 'stardog';
-	GRANT ALL PRIVILEGES ON semmeddb4 . * TO 'tester'@'localhost';
+	CREATE USER 'tester'@'%' IDENTIFIED BY 'stardog';
+	GRANT ALL PRIVILEGES ON semmeddb4 . * TO 'tester'@'%';
 	FLUSH PRIVILEGES;
 ```
-2) Load the SQL-import files into `semmeddb4` either:
+2) Load the SQL-import files into `semmeddb4`
 
-(a) via a background process on command line (recommended):
+Note: Minified demo files ([`predication_dump.sql.gz`](data/predication_dump.sql.gz), [`entity_dump.sql.gz`](data/entity_dump.sql.gz)) were extracted from the original data allowing for an initial exploration. Their content is sufficient to serve referential queries below. Please adapt the the import commands accordingly. 
+
+(a) Import via a background process on command line (recommended):
 
 ```console
 bash>
@@ -127,29 +129,14 @@ mysql>
 	SOURCE semmedVER40_R_ENTITY.sql;
 ```
 
+
+
 Clean up an obviuos error, numeric predicates are invalid (3 rows affected):
 
 ```sql
 mysql> 
 	USE semmeddb4 ;
 	DELETE FROM predication WHERE predicate IN ("127", "1532", "241") ;
-```
- 
-Create indexes to support searching by entity names and CUIs:
-
-```sql
-mysql>
-	CREATE INDEX subject_cui_index ON PREDICATION (subject_cui) USING BTREE;
-	CREATE INDEX subject_type_index ON PREDICATION (subject_semtype) USING BTREE;
-	CREATE INDEX subject_name_index ON PREDICATION (subject_name) USING BTREE;
-	CREATE INDEX predicate_index ON PREDICATION (predicate) USING BTREE;
-	CREATE INDEX object_cui_index ON PREDICATION (object_cui) USING BTREE;
-	CREATE INDEX object_type_index ON PREDICATION (object_semtype) USING BTREE;
-	CREATE INDEX object_name_index ON PREDICATION (object_name) USING BTREE;
-	
-	# Applies only when ENTITY table is used:
-	CREATE INDEX cui_index ON ENTITY (cui) USING BTREE;
-
 ```
 
 ## Stardog server
@@ -159,7 +146,7 @@ The following step to prepare the integration of the SemMedDB data in Stardog:
 Create the database `semmeddb` dedicating the named graph `urn:stardog:demo:semmeddb:model` for model maintenance:
 
 ```console
-stardog-admin db create --name  --options reasoning.schema.graphs=urn:stardog:demo:semmeddb:model --
+stardog-admin db create --name  semmeddb --options reasoning.schema.graphs=urn:stardog:demo:semmeddb:model --
 ```
 
 Load the ontology file and dynamic, data-generated parts of the model into the graph `urn:stardog:demo:semmeddb:model`:
@@ -172,18 +159,9 @@ stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semme
 
 # Import generated predicate definitions
 stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb --format SMS2 mappings/predicates.properties mappings/predicates.sms  
-```
-Stardog supports either a deferred (virtual) or an eager (materialized) integration of data into the uniform knowledge graph model. The former is particularly suitable for live, transient data. Its integration and evaluation is performed on the fly. An corresponding *virtual graph* (VG) acts as an adapter to the original data source and is created by the `stardog-admin virtual add` command. VG queries are subject to performance limitations of the underlying data source. The following example operates therefore on a subset of the `PREDICATION` data, allowing to asses an association between genes and the diseases "Asthma" or "Chronic obstructive pulmonary disease" (COPD):
 
-```console
-stardog-admin virtual add --database semmeddb --format SMS2 --overwrite mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
-```
-The virtualized `PREDICATION` data set is exposed for querying via the VG `<virtual://semmeddb>` (not used in this demo). 
-
-The `stardog-admin virtual import` command is preferred to load mostly static, extensive data sources according to provided mapping: 
-
-```console
-stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/semmeddb_gene_asthma_copd.sms
+# Import the data
+stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/semmeddb_reification.sms
 ```
 
 ## Queries
@@ -215,6 +193,7 @@ The rule [`contradicting_predications.ttl`](rules/contradicting_predications.ttl
 System | Source row count | Loaded triples | Effective triples | Import time 
 --- | --- | --- | --- | ---
 MacBook Pro, Intel Core i9, 2,3 GHz, 8 cores, 16 GB memory | PREDICATION: 97.972.558, ENTITY: 37.859.114 | 37.898.857 | 177.802 | 6m 11.872s
+SVM? | ENTITY: 803.174.282 | x | x | x
 
 # Issues / Questions / Ideas
 - Applicability of Stardog's ML models: spa:SimilarityModel / clustering
