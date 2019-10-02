@@ -3,10 +3,11 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 # stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb --format SMS2 mappings/predicates.properties mappings/predicates.sms  
+# note: table name in uppercase: PREDICATION
 
 MAPPING :SemmedDB_Predicates
 FROM SQL {
-  	SELECT DISTINCT LOWER(predicate) as lc_predicate FROM predication
+  	SELECT DISTINCT LOWER(predicate) as lc_predicate FROM PREDICATION
 }
 TO {
 	?p rdfs:subPropertyOf sdb:predicate ; rdfs:label ?lc_predicate .

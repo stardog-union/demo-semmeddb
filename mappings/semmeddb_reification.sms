@@ -15,7 +15,7 @@ FROM SQL {
 		object_cui, 
 		object_name, 
 		object_semtype
-	FROM predication 
+	FROM PREDICATION 
 }
 TO {
 
@@ -48,7 +48,7 @@ FROM SQL {
   	SELECT
 		cui, 
 		gene_id
-	FROM entity
+	FROM ENTITY
 	WHERE cui != '' and gene_id != ''
 }
 TO {
