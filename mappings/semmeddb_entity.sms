@@ -1,0 +1,23 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# stardog-admin virtual import semmeddb --format SMS2 mappings/semmeddb.properties mappings/semmeddb_entity.sms 
+
+MAPPING :SemMedDbEntityMapping
+FROM SQL {
+  	SELECT
+		cui, 
+		gene_id
+	FROM ENTITY
+	WHERE cui != '' and gene_id != ''
+}
+TO {
+
+	?ent sdb:gene ?g .
+
+} 
+WHERE {
+	BIND(template("https://skr3.nlm.nih.gov/SemMedDB/{cui}") AS ?ent)
+	BIND(template("https://www.ncbi.nlm.nih.gov/gene/{gene_id}") AS ?g)
+}

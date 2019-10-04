@@ -1,0 +1,20 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Genes involved in a molecular function associated with a disease
+#
+SELECT DISTINCT ?gene ?genel ?mfun ?mfunl ?disease ?diseasel WHERE 
+{
+    ?gene 
+        sdb:associated_with ?mfun  ;
+        OPTIONAL { ?gene rdfs:label ?genel }
+    ?mfun 
+        rdf:type sdb:moft ;
+		sdb:associated_with ?disease .
+        OPTIONAL { ?mfun rdfs:label ?mfunl } 
+    ?disease 
+		rdf:type sdb:dsyn ;
+	    ^sdb:associated_with ?gene .
+        OPTIONAL { ?disease  rdf:label ?diseasel }
+} 

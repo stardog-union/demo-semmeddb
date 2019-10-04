@@ -1,0 +1,26 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Comorbidity test, i.e., diseases that coexist with a form of asthma, both linked to same set of genes
+#
+SELECT DISTINCT  ?geneL ?asthmaL  ?diseaseL WHERE 
+{
+
+	?asthma 
+		rdf:type sdb:Asthma .
+        OPTIONAL { ?asthma  rdf:label ?asthmaL }
+        
+    ?disease
+		rdf:type sdb:dsyn ;
+		sdb:coexists_with ?asthma .
+        OPTIONAL { ?disease  rdf:label ?diseaseL }
+		FILTER ( ?disease != ?asthma )
+
+	?gene 
+		rdf:type sdb:gngm  ;
+		sdb:associated_with ?asthma, ?disease .
+		OPTIONAL { ?gene rdfs:label ?geneL } 
+  
+} 
+

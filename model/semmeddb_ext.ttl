@@ -1,0 +1,19 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+
+# stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb model/semmeddb_ext.ttl
+
+# Taxonomial branch of causal predicates. 
+# Requires reasoning activated.
+sdb:induces 
+	rdfs:subPropertyOf sdb:predicate ;
+	rdfs:label "induces" ;
+	rdfs:comment "induces, root causual predicate" ;
+	.
+
+# 
+sdb:diagnoses rdfs:subPropertyOf sdb:induces .
+sdb:causes rdfs:subPropertyOf sdb:induces .
+sdb:affects rdfs:subPropertyOf sdb:induces.

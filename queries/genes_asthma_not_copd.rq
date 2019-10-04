@@ -1,0 +1,17 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Requires rules deployed and active reasoning
+SELECT DISTINCT ?gene_label ?gene WHERE 
+{
+	?disease rdf:type sdb:Asthma .
+	?gene 
+		sdb:associated_with ?disease ;
+		rdf:type sdb:gngm ;# Gene
+		rdfs:label ?gene_label .
+	FILTER NOT EXISTS {
+		?gene sdb:associated_with [ rdf:type sdb:COPD ]
+    } 
+} 
+ORDER BY ?gene_label

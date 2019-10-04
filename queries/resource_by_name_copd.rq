@@ -1,0 +1,13 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Concepts and names for "*COPD*"
+SELECT  ?copd ?label WHERE {
+	?copd rdf:type sdb:dsyn ; # Disease or Syndrome
+	rdfs:label ?label 
+    FILTER (matches(?label, 'copd','i') 
+		||  matches(?label, 'Chronic obstructive pulmonary disease','i')
+		||  matches(?label, 'Chronic obstructive lung disease','i')
+	)
+} ORDER BY ?label

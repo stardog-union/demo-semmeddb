@@ -1,0 +1,54 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?gene_label ?gene WHERE {
+        VALUES ?disease {# all entities below are of type sdb:dsyn, i.e. "Disease"
+        
+            # Asthma variants known to PREDICATIONS
+            sdb:C0543699 # "ASA intolerant asthma"
+			sdb:C0582415 # "Acute asthma"
+			sdb:C0004096 # "Asthma"
+			sdb:C0856716 # "Asthma aspirin-sensitive"
+			sdb:C0347950 # "Asthma attack NOS"
+			sdb:C0877430 # "Asthma chronic"
+			sdb:C0004099 # "Asthma, Exercise-Induced"
+			sdb:C0259808 # "Asthma, endogenous"
+			sdb:C0259745 # "Asthma, infective"
+			sdb:C1319018 # "Asthmatic bronchitis"
+			sdb:C0340076 # "Asthmatic pulmonary eosinophilia"
+			sdb:C0859987 # "Asthmatoid bronchitis"
+			sdb:C0264480 # "Bakers' asthma"
+			sdb:C0729337 # "Brittle asthma"
+			sdb:C0684913 # "Chemical-induced asthma"
+			sdb:C0264408 # "Childhood asthma"
+			sdb:C0264348 # "Chronic asthmatic bronchitis"
+			sdb:C0340069 # "Colophony asthma"
+			sdb:C0014434 # "Detergent asthma"
+			sdb:C0340067 # "Drug-induced asthma"
+			sdb:C0155877 # "Extrinsic asthma NOS"
+			sdb:C0340073 # "Factitious asthma"
+			sdb:C0264411 # "Hay fever with asthma"
+			sdb:C0877264 # "Infantile asthma"
+			sdb:C0155880 # "Intrinsic asthma NOS"
+			sdb:C0264413 # "Late onset asthma"
+			sdb:C0238266 # "Meat-wrappers' asthma"
+			sdb:C0340070 # "Millers' asthma"
+			sdb:C0348819 # "Mixed asthma"
+			sdb:C0264423 # "Occupational asthma"
+			sdb:C0238375 # "Platinum asthma"
+			sdb:C0038218 # "Status Asthmaticus"
+			sdb:C0340094 # "Wood asthma"
+           
+            # COPD mentiones
+			sdb:C0742809 # "COPD BRONCHITIS"
+			sdb:C0740304 # "COPD exacerbation"
+			sdb:C0730604 # "Mild chronic obstructive pulmonary disease"
+			sdb:C0494659 # "Other chronic obstructive pulmonary disease"
+			sdb:C0730607 # "Severe chronic obstructive pulmonary disease"  
+        }            
+        ?gene 
+            sdb:associated_with ?disease ;
+            rdf:type sdb:gngm ;# Gene
+            rdfs:label ?gene_label .
+} ORDER BY ?gene_label
