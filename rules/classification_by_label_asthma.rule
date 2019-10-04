@@ -1,0 +1,16 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb rules/classification_by_label_asthma.rule
+
+RULE sdb:AsthmaClassificationRule	
+IF {
+	?asthma 
+		rdf:type sdb:dsyn ; # Disease or Syndrome
+		rdfs:label ?label 
+		FILTER matches(?label, 'asthma','i')
+}
+THEN {
+   ?asthma rdf:type sdb:Asthma .
+}

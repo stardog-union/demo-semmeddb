@@ -1,0 +1,22 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb rules/classification_by_label_copd.rule
+
+RULE sdb:COPDClassificationRule	
+IF {
+	?copd 
+		rdf:type sdb:dsyn ; # Disease or Syndrome
+		rdfs:label ?label 
+		FILTER (matches(?label, 'copd','i') 
+			||  matches(?label, 'Chronic obstructive pulmonary disease','i')
+			||  matches(?label, 'Chronic obstructive lung disease','i') # etc.
+		) .
+}
+THEN {
+   ?copd rdf:type sdb:COPD .
+} 
+
+sdb:COPDClassificationRule	
+	rdfs:comment "Classifies a 'disease' node based on matching label as COPD."@en .
