@@ -6,11 +6,15 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT DISTINCT ?gene_label ?gene WHERE 
 {
 	?asthma rdf:type sdb:Asthma .
-    ?copd rdf:type sdb:COPD .  
 	?gene 
-		sdb:associated_with ?asthma , ?copd ;
-		rdf:type sdb:gngm ; # Gene
+		sdb:associated_with ?disease ;
+		rdf:type sdb:gngm ;# Gene
 		rdfs:label ?gene_label .
+	?predication
+		rdf:type sdb:ReliablePredication ;
+		rdf:subject ?gene ;
+		rdf:predicate sdb:associated_with ;
+		rdf:object ?asthma .
+		
 } 
 ORDER BY ?gene_label
-

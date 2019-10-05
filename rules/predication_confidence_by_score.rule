@@ -1,0 +1,28 @@
+PREFIX sdb: <https://skr3.nlm.nih.gov/SemMedDB/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb rules/predication_confidence_by_score.rule
+
+RULE sdb:ReliablePredicationRule	
+IF {
+	?predication 
+		rdf:type sdb:Predication ; 
+		sdb:score ?score 
+		FILTER (?score >= 734) # average of the range 468 - 1000
+}
+THEN {
+   ?predication rdf:type sdb:ReliablePredication .
+}
+
+RULE sdb:UnreliablePredicationRule	
+IF {
+	?predication 
+		rdf:type sdb:Predication ; 
+		sdb:score ?score 
+		FILTER (?score < 734)
+}
+THEN {
+   ?predication rdf:type sdb:UnreliablePredication .
+}
+

@@ -5,8 +5,14 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 # stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb model/semmeddb_ext.ttl
 
-# Taxonomial branch of causal predicates. 
-# Requires reasoning activated.
+
+# Predication classes according to score/reliability
+#
+sdb:ReliablePredication rdfs:subClassOf sdb:Predication .
+sdb:UnreliablePredicationRule rdfs:subClassOf sdb:Predication .
+
+# Taxonomial branch of causal predicates
+#
 sdb:induces 
 	rdfs:subPropertyOf sdb:predicate ;
 	rdfs:label "induces" ;
