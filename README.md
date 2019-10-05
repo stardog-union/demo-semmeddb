@@ -152,7 +152,11 @@ stardog-admin db create --name  semmeddb --options reasoning.schema.graphs=urn:s
 Load the ontology file and dynamic, data-generated parts of the model into the graph `urn:stardog:demo:semmeddb:model`:
 
 ```console
+# Main ontology
 stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb model/semmeddb.ttl
+
+# Extension for demo purposes (classes and predicates used with reasoning)
+stardog data add --format TURTLE --named-graph urn:stardog:demo:semmeddb:model semmeddb model/semmeddb_ext.ttl
 	
 # Import generated type definitions
 stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb mappings/srdef.properties mappings/srdef.ttl data/SemanticTypes_2018AB.txt
@@ -160,17 +164,39 @@ stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semme
 # Import generated predicate definitions
 stardog-admin virtual import --named-graph urn:stardog:demo:semmeddb:model semmeddb --format SMS2 mappings/predicates.properties mappings/predicates.sms  
 
-# Import the data
-stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/semmeddb_reification.sms
 ```
+
+Import the individual data sets into the default graph:
+
+```console
+# Standard and reified statements from PREDICATION
+stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/predication.sms
+
+# Predication score from PREDICATION_AUX
+stardog-admin virtual import semmeddb --format SMS2  mappings/semmeddb.properties mappings/predication_aux.sms
+
+# Gene ID / NCBI gene reference from ENTITY
+stardog-admin virtual import semmeddb --format SMS2 mappings/semmeddb.properties mappings/entity.sms
+
+```
+
+## Rules
+
+Some rules showcase decoupling modelling layers and are reused in the queries:
+
+- classification based on matchig label: ([`classification_by_label_copd.rule`](rules/classification_by_label_copd.rule))
+- classification based on confidence score: ([`predication_confidence_by_score.rule`](rules/predication_confidence_by_score.rule))
 
 ## Queries
 
 Sample queries selecting genes that:
 
-- are associated with Asthma *or* COPD: ([`genes_asthma_or_copd_materialized.rq`](queries/genes_asthma_or_copd_materialized.rq))
-- are associated with Asthma but *not* COPD: ([`genes_asthma_not_copd_materialized.rq`](queries/genes_asthma_not_copd_materialized.rq))
-- are associated with Asthma *and* COPD: ([`genes_asthma_and_copd_materialized.rq`](queries/genes_asthma_and_copd_materialized.rq))
+- are associated with Asthma *or* COPD (using explicit `VALUES` enumeration): ([`genes_asthma_or_copd_values.rq`](queries/genes_asthma_or_copd_values.rq))
+- are associated with Asthma *or* COPD: ([`genes_asthma_or_copd.rq`](queries/genes_asthma_or_copd.rq))
+- are associated with Asthma but *not* COPD: ([`genes_asthma_not_copd.rq`](queries/genes_asthma_not_copd.rq))
+- are associated with Asthma *and* COPD: ([`genes_asthma_and_copd.rq`](queries/genes_asthma_and_copd.rq))
+
+Please look at the ([`queries`](queries/)) folder for further examples.
 
 ## Constraints 
 
@@ -186,7 +212,7 @@ stardog icv explain semmeddb constraints/contradicting_predications.ttl
 +-----------+
 ```
 
-The rule [`contradicting_predications.ttl`](rules/contradicting_predications.ttl) provides a listing of the conflicting predication pairs. 
+The rule [`contradicting_predications.ttl`](constraints/contradicting_predications.ttl) provides a listing of the conflicting predication pairs. 
 
 # Statistics
 
