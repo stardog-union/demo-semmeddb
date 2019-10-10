@@ -222,6 +222,6 @@ The rule [`contradicting_predications.ttl`](constraints/contradicting_predicatio
 # Statistics
 
 System | Source |  Effective triples (DB) | Import time 
---- | --- | --- | --- | ---
+--- | --- | --- | --- 
 8 x Intel(R) Xeon(R) Platinum 8175M CPU @ 2.50GHz, 30Gb max/heap memory for SD| PREDICATION; PREDICATION_AUX; ENTITY | 510.992.385 | 06h 08m
---\|\|-- | RDF Import of GZIPed Trig file (1,59 Gb)| --\|\|--| 02h 37m 
+same | RDF Import of GZIPed Trig file (1,59 Gb)| same | 02h 37m 
