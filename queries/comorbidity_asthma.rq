@@ -4,23 +4,22 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 # Comorbidity test, i.e., diseases that coexist with a form of asthma, both linked to same set of genes
 #
-SELECT DISTINCT  ?geneL ?asthmaL  ?diseaseL WHERE 
+SELECT DISTINCT  ?primary_disease  ?comorbidity WHERE 
 {
+	_:gene
+		rdf:type sdb:gngm  ;
+		sdb:associated_with ?asthma, ?disease .
 
 	?asthma 
-		rdf:type sdb:Asthma .
-        OPTIONAL { ?asthma  rdf:label ?asthmaL }
+		rdf:type sdb:Asthma ;
+        rdfs:label ?primary_disease  .
         
     ?disease
 		rdf:type sdb:dsyn ;
-		sdb:coexists_with ?asthma .
-        OPTIONAL { ?disease  rdf:label ?diseaseL }
-		FILTER ( ?disease != ?asthma )
+		sdb:coexists_with ?asthma ;
+        rdfs:label ?comorbidity ;
+		# Has not been classified as athma
+		FILTER NOT EXISTS { ?disease rdf:type sdb:Asthma  }
 
-	?gene 
-		rdf:type sdb:gngm  ;
-		sdb:associated_with ?asthma, ?disease .
-		OPTIONAL { ?gene rdfs:label ?geneL } 
-  
-} 
+} ORDER BY ?primary_disease
 

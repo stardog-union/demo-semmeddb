@@ -5,12 +5,18 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 # Requires rules deployed and active reasoning
 SELECT DISTINCT ?gene_label ?gene WHERE 
 {
-	?asthma rdf:type sdb:Asthma .
-    ?copd rdf:type sdb:COPD .  
-	?gene 
-		sdb:associated_with ?asthma , ?copd ;
-		rdf:type sdb:gngm ; # Gene
-		rdfs:label ?gene_label .
+{ #pragma group.joins
+    ?asthma rdf:type sdb:Asthma .
+    ?gene sdb:associated_with ?asthma .
+}
+
+{ #pragma group.joins
+    ?copd rdf:type sdb:COPD .
+    ?gene sdb:associated_with ?copd .
+}
+
+    ?gene rdf:type sdb:gngm ; # Gene
+          rdfs:label ?gene_label .
 } 
 ORDER BY ?gene_label
 
