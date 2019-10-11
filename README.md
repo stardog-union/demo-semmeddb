@@ -219,9 +219,4 @@ stardog icv explain semmeddb constraints/contradicting_predications.ttl
 
 The rule [`contradicting_predications.ttl`](constraints/contradicting_predications.ttl) provides a listing of the conflicting predication pairs. 
 
-# Statistics
 
-System | Source |  Effective triples (DB) | Import time 
---- | --- | --- | --- 
-8 x Intel(R) Xeon(R) Platinum 8175M CPU @ 2.50GHz, 30Gb max/heap memory for SD| PREDICATION; PREDICATION_AUX; ENTITY | 510.992.385 | 06h 08m
-same | RDF Import of GZIPed Trig file (1,59 Gb)| same | 02h 37m 
